@@ -1,0 +1,70 @@
+name: Manage Profile
+
+on:
+  workflow_dispatch:
+    inputs:
+      field:
+        description: 'Which field to update'
+        required: true
+        type: choice
+        options:
+          - name
+          - title
+          - description
+          - email
+          - github
+          - linkedin
+          - resume_url
+          - about
+      value:
+        description: 'New value (for "about", separate paragraphs with "|||")'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Modify data.json
+        run: |
+          FIELD="${{ inputs.field }}"
+          VALUE="${{ inputs.value }}"
+
+          if [ "$FIELD" = "resume_url" ]; then
+            jq --arg val "$VALUE" '.profile.resumeUrl = $val' data.json > tmp.json
+            mv tmp.json data.json
+            echo "Updated resume URL"
+
+          elif [ "$FIELD" = "about" ]; then
+            # Split on ||| to create array of paragraphs
+            echo "$VALUE" | awk -F'\\|\\|\\|' '{for(i=1;i<=NF;i++) print $i}' | jq -R -s 'split("\n") | map(select(length > 0) | ltrimstr(" ") | rtrimstr(" "))' > /tmp/about.json
+            jq --slurpfile about /tmp/about.json '.about = $about[0]' data.json > tmp.json
+            mv tmp.json data.json
+            echo "Updated about section"
+
+          elif [ "$FIELD" = "name" ] || [ "$FIELD" = "title" ] || [ "$FIELD" = "description" ] || [ "$FIELD" = "email" ] || [ "$FIELD" = "github" ] || [ "$FIELD" = "linkedin" ]; then
+            jq --arg field "$FIELD" --arg val "$VALUE" '.profile[$field] = $val' data.json > tmp.json
+            mv tmp.json data.json
+            echo "Updated profile.$FIELD"
+
+          else
+            echo "Unknown field: $FIELD"
+            exit 1
+          fi
+
+          echo "Current profile:"
+          jq '.profile' data.json
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "update profile: ${{ inputs.field }}"
+          git push

@@ -1,0 +1,87 @@
+name: Manage Skills
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        type: choice
+        options:
+          - add
+          - remove
+          - add-category
+          - remove-category
+      category:
+        description: 'Skill category (e.g. "Languages", "Cloud & Infrastructure")'
+        required: true
+        type: string
+      skill:
+        description: 'Skill name (required for add/remove skill)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Modify data.json
+        run: |
+          ACTION="${{ inputs.action }}"
+          CATEGORY="${{ inputs.category }}"
+          SKILL="${{ inputs.skill }}"
+
+          if [ "$ACTION" = "add" ]; then
+            if [ -z "$SKILL" ]; then
+              echo "ERROR: skill name is required for add"
+              exit 1
+            fi
+            # Add skill to category (creates category if it doesn't exist)
+            jq --arg cat "$CATEGORY" --arg skill "$SKILL" \
+              'if .skills[$cat] then
+                .skills[$cat] |= (if index($skill) then . else . + [$skill] end)
+              else
+                .skills[$cat] = [$skill]
+              end' data.json > tmp.json
+            mv tmp.json data.json
+            echo "Added '$SKILL' to '$CATEGORY'"
+
+          elif [ "$ACTION" = "remove" ]; then
+            if [ -z "$SKILL" ]; then
+              echo "ERROR: skill name is required for remove"
+              exit 1
+            fi
+            jq --arg cat "$CATEGORY" --arg skill "$SKILL" \
+              '.skills[$cat] |= map(select(. != $skill))' data.json > tmp.json
+            mv tmp.json data.json
+            echo "Removed '$SKILL' from '$CATEGORY'"
+
+          elif [ "$ACTION" = "add-category" ]; then
+            jq --arg cat "$CATEGORY" \
+              'if .skills[$cat] then . else .skills[$cat] = [] end' data.json > tmp.json
+            mv tmp.json data.json
+            echo "Added category '$CATEGORY'"
+
+          elif [ "$ACTION" = "remove-category" ]; then
+            jq --arg cat "$CATEGORY" \
+              'del(.skills[$cat])' data.json > tmp.json
+            mv tmp.json data.json
+            echo "Removed category '$CATEGORY'"
+          fi
+
+          echo "Current skills:"
+          jq '.skills' data.json
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "${{ inputs.action }} skill: ${{ inputs.skill || inputs.category }}"
+          git push

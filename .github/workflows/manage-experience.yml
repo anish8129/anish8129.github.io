@@ -1,0 +1,121 @@
+name: Manage Experience
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        type: choice
+        options:
+          - add
+          - update
+          - delete
+      company:
+        description: 'Company name (used as identifier for update/delete)'
+        required: true
+        type: string
+      title:
+        description: 'Job title (required for add/update)'
+        required: false
+        type: string
+      start_date:
+        description: 'Start date, e.g. "Nov 2025" (required for add)'
+        required: false
+        type: string
+      end_date:
+        description: 'End date, e.g. "Present" or "Oct 2025" (required for add)'
+        required: false
+        type: string
+      description:
+        description: 'Job description (required for add/update)'
+        required: false
+        type: string
+      position:
+        description: 'Position in list: "top" or "bottom" (for add, default: top)'
+        required: false
+        type: choice
+        default: 'top'
+        options:
+          - top
+          - bottom
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Modify data.json
+        run: |
+          ACTION="${{ inputs.action }}"
+          COMPANY="${{ inputs.company }}"
+          TITLE="${{ inputs.title }}"
+          START="${{ inputs.start_date }}"
+          END="${{ inputs.end_date }}"
+          DESC="${{ inputs.description }}"
+          POS="${{ inputs.position }}"
+
+          # Generate a slug ID from company name
+          ID=$(echo "$COMPANY" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//' | sed 's/-$//')
+
+          if [ "$ACTION" = "add" ]; then
+            if [ -z "$TITLE" ] || [ -z "$START" ] || [ -z "$END" ] || [ -z "$DESC" ]; then
+              echo "ERROR: title, start_date, end_date, and description are required for add"
+              exit 1
+            fi
+            NEW_ENTRY=$(jq -n \
+              --arg id "$ID" \
+              --arg title "$TITLE" \
+              --arg company "$COMPANY" \
+              --arg start "$START" \
+              --arg end "$END" \
+              --arg desc "$DESC" \
+              '{id: $id, title: $title, company: $company, startDate: $start, endDate: $end, description: $desc}')
+
+            if [ "$POS" = "bottom" ]; then
+              jq --argjson entry "$NEW_ENTRY" '.experience += [$entry]' data.json > tmp.json
+            else
+              jq --argjson entry "$NEW_ENTRY" '.experience = [$entry] + .experience' data.json > tmp.json
+            fi
+            mv tmp.json data.json
+            echo "Added experience: $TITLE at $COMPANY"
+
+          elif [ "$ACTION" = "update" ]; then
+            # Update matching entry by company name (case-insensitive)
+            jq --arg company "$COMPANY" \
+               --arg title "$TITLE" \
+               --arg start "$START" \
+               --arg end "$END" \
+               --arg desc "$DESC" \
+              '(.experience[] | select(.company | ascii_downcase == ($company | ascii_downcase))) |=
+                (if $title != "" then .title = $title else . end) |
+                (if $start != "" then .startDate = $start else . end) |
+                (if $end != "" then .endDate = $end else . end) |
+                (if $desc != "" then .description = $desc else . end)
+              ' data.json > tmp.json
+            mv tmp.json data.json
+            echo "Updated experience at $COMPANY"
+
+          elif [ "$ACTION" = "delete" ]; then
+            jq --arg company "$COMPANY" \
+              '.experience |= map(select(.company | ascii_downcase != ($company | ascii_downcase)))' \
+              data.json > tmp.json
+            mv tmp.json data.json
+            echo "Deleted experience at $COMPANY"
+          fi
+
+          echo "Current experience entries:"
+          jq '.experience[] | .company' data.json
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "${{ inputs.action }} experience: ${{ inputs.company }}"
+          git push
