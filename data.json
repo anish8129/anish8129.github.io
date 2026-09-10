@@ -6,18 +6,44 @@
     "email": "anish8129@gmail.com",
     "github": "anish8129",
     "linkedin": "anish-prasad",
-    "resumeUrl": ""
+    "resumeUrl": "https://drive.google.com/file/d/1HPGm0xpYWbIHLeKLR0jW6PkpB8SWW-3e/view?usp=sharing"
   },
   "about": [
     "I'm a senior backend engineer with 8+ years of experience leading teams in building distributed systems and cloud-native architectures. I specialize in Java, Spring Boot, Kafka, and AWS — driving large-scale system modernization, infrastructure reliability, and cost optimization.",
     "I leverage AI-driven productivity tools and prompt engineering to accelerate development cycles. When I'm not writing code, you'll find me mentoring engineers, exploring new technologies, or optimizing cloud infrastructure."
   ],
   "skills": {
-    "Languages": ["Java (v21+)", "Python", "SQL", "Bash"],
-    "Backend Frameworks": ["Spring Boot", "Kafka Streams", "REST API", "Microservices"],
-    "Cloud & Infrastructure": ["AWS", "Kubernetes", "Docker", "EKS", "ElastiCache"],
-    "Database & Messaging": ["Redis", "MySQL", "Kafka", "Zookeeper"],
-    "AI & Tools": ["Prompt Engineering", "GitHub Copilot", "LLM Automation", "CI/CD"]
+    "Languages": [
+      "Java (v21+)",
+      "Python",
+      "SQL",
+      "Bash"
+    ],
+    "Backend Frameworks": [
+      "Spring Boot",
+      "Kafka Streams",
+      "REST API",
+      "Microservices"
+    ],
+    "Cloud & Infrastructure": [
+      "AWS",
+      "Kubernetes",
+      "Docker",
+      "EKS",
+      "ElastiCache"
+    ],
+    "Database & Messaging": [
+      "Redis",
+      "MySQL",
+      "Kafka",
+      "Zookeeper"
+    ],
+    "AI & Tools": [
+      "Prompt Engineering",
+      "GitHub Copilot",
+      "LLM Automation",
+      "CI/CD"
+    ]
   },
   "experience": [
     {
