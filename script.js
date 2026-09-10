@@ -222,13 +222,17 @@ function observeFadeIns() {
   document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
 }
 
-// Contact form guard
-document.getElementById("contact-form").addEventListener("submit", (e) => {
-  if (e.target.getAttribute("action").includes("YOUR_FORM_ID")) {
-    e.preventDefault();
-    alert("Set up a Formspree form ID in index.html to enable the contact form.");
-  }
-});
+function renderContact(profile) {
+  document.getElementById("contact-actions").innerHTML = `
+    <div class="contact-links">
+      <a href="mailto:${esc(profile.email)}" class="btn btn-primary">
+        ${ICONS.email} Email Me
+      </a>
+      ${profile.linkedin ? `<a href="https://linkedin.com/in/${esc(profile.linkedin)}" target="_blank" rel="noopener" class="btn btn-outline">${ICONS.linkedin} LinkedIn</a>` : ""}
+      ${profile.github ? `<a href="https://github.com/${esc(profile.github)}" target="_blank" rel="noopener" class="btn btn-outline">${ICONS.github} GitHub</a>` : ""}
+    </div>
+  `;
+}
 
 // Init
 async function init() {
@@ -241,6 +245,7 @@ async function init() {
     renderExperience(data.experience);
     renderEducation(data.education);
     renderProjects(data.projects, data.profile.github);
+    renderContact(data.profile);
   } catch (err) {
     console.error("Failed to load data.json:", err);
   }
