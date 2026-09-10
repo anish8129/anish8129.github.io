@@ -89,7 +89,9 @@
   ],
   "projects": {
     "enabled": true,
-    "featured": []
+    "featured": [
+      "https://github.com/anish8129/Configuring-Linux-Server"
+    ]
   },
   "education": [
     {
