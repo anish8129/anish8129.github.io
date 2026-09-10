@@ -1,0 +1,83 @@
+name: Manage Projects
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        type: choice
+        options:
+          - enable
+          - disable
+          - add-featured
+          - remove-featured
+          - clear-featured
+      repo_name:
+        description: 'GitHub repo name (for add-featured / remove-featured)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Modify data.json
+        run: |
+          ACTION="${{ inputs.action }}"
+          REPO="${{ inputs.repo_name }}"
+
+          if [ "$ACTION" = "enable" ]; then
+            jq '.projects.enabled = true' data.json > tmp.json
+            mv tmp.json data.json
+            echo "Projects section enabled"
+
+          elif [ "$ACTION" = "disable" ]; then
+            jq '.projects.enabled = false' data.json > tmp.json
+            mv tmp.json data.json
+            echo "Projects section disabled"
+
+          elif [ "$ACTION" = "add-featured" ]; then
+            if [ -z "$REPO" ]; then
+              echo "ERROR: repo_name is required for add-featured"
+              exit 1
+            fi
+            jq --arg repo "$REPO" \
+              '.projects.featured |= (if index($repo) then . else . + [$repo] end)' \
+              data.json > tmp.json
+            mv tmp.json data.json
+            echo "Added '$REPO' to featured projects"
+
+          elif [ "$ACTION" = "remove-featured" ]; then
+            if [ -z "$REPO" ]; then
+              echo "ERROR: repo_name is required for remove-featured"
+              exit 1
+            fi
+            jq --arg repo "$REPO" \
+              '.projects.featured |= map(select(. != $repo))' \
+              data.json > tmp.json
+            mv tmp.json data.json
+            echo "Removed '$REPO' from featured projects"
+
+          elif [ "$ACTION" = "clear-featured" ]; then
+            jq '.projects.featured = []' data.json > tmp.json
+            mv tmp.json data.json
+            echo "Cleared featured list (will show top repos by stars)"
+          fi
+
+          echo "Current projects config:"
+          jq '.projects' data.json
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "${{ inputs.action }} projects: ${{ inputs.repo_name || 'section toggle' }}"
+          git push

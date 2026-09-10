@@ -61,6 +61,10 @@
       "description": "Engineered a custom testing tool that increased sprint testing speed by 30%. Enhanced front-end accessibility features, improving inclusive user reach by 15%."
     }
   ],
+  "projects": {
+    "enabled": false,
+    "featured": []
+  },
   "education": [
     {
       "degree": "B.Tech in Electronics and Communication Engineering",

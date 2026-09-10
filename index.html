@@ -13,11 +13,12 @@
   <nav class="nav" id="nav">
     <div class="nav-inner">
       <a href="#" class="nav-logo" id="nav-logo">AP</a>
-      <ul class="nav-links">
+      <ul class="nav-links" id="nav-links">
         <li><a href="#about">About</a></li>
         <li><a href="#skills">Skills</a></li>
-        <li><a href="#projects">Projects</a></li>
         <li><a href="#experience">Experience</a></li>
+        <li><a href="#education">Education</a></li>
+        <li><a href="#projects">Projects</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
       <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
@@ -29,8 +30,6 @@
       </button>
     </div>
   </nav>
-
-  <!-- All sections below are rendered dynamically from data.json by script.js -->
 
   <section class="hero" id="hero">
     <div class="hero-content" id="hero-content"></div>
@@ -44,7 +43,15 @@
     <div class="container" id="skills-content"></div>
   </section>
 
-  <section class="section" id="projects">
+  <section class="section" id="experience">
+    <div class="container" id="experience-content"></div>
+  </section>
+
+  <section class="section section-alt" id="education">
+    <div class="container" id="education-content"></div>
+  </section>
+
+  <section class="section" id="projects" style="display:none;">
     <div class="container">
       <h2 class="section-title">Projects</h2>
       <p class="section-subtitle">Pinned repositories and recent work from GitHub</p>
@@ -53,21 +60,10 @@
           <div class="skeleton-card"></div>
           <div class="skeleton-card"></div>
           <div class="skeleton-card"></div>
-          <div class="skeleton-card"></div>
-          <div class="skeleton-card"></div>
-          <div class="skeleton-card"></div>
         </div>
       </div>
       <div class="projects-cta" id="projects-cta"></div>
     </div>
-  </section>
-
-  <section class="section section-alt" id="experience">
-    <div class="container" id="experience-content"></div>
-  </section>
-
-  <section class="section" id="education">
-    <div class="container" id="education-content"></div>
   </section>
 
   <section class="section section-alt" id="contact">
