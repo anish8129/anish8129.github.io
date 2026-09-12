@@ -7,9 +7,11 @@
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
+  <div class="hero-bg-effects" aria-hidden="true"></div>
+
   <nav class="nav" id="nav">
     <div class="nav-inner">
       <a href="#" class="nav-logo" id="nav-logo">AP</a>
@@ -20,6 +22,7 @@
         <li><a href="#education">Education</a></li>
         <li><a href="#projects">Projects</a></li>
         <li><a href="#contact">Contact</a></li>
+        <li id="nav-resume-item" style="display:none;"><a href="#" id="nav-resume-link" target="_blank" rel="noopener">Resume</a></li>
       </ul>
       <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
         <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
@@ -39,6 +42,8 @@
     <div class="container" id="about-content"></div>
   </section>
 
+  <hr class="section-divider">
+
   <section class="section section-alt" id="skills">
     <div class="container" id="skills-content"></div>
   </section>
@@ -47,14 +52,19 @@
     <div class="container" id="experience-content"></div>
   </section>
 
+  <hr class="section-divider">
+
   <section class="section section-alt" id="education">
     <div class="container" id="education-content"></div>
   </section>
 
   <section class="section" id="projects" style="display:none;">
     <div class="container">
-      <h2 class="section-title">Projects</h2>
-      <p class="section-subtitle">Pinned repositories and recent work from GitHub</p>
+      <div class="section-header">
+        <span class="section-label">Portfolio</span>
+        <h2 class="section-title">Projects</h2>
+        <p class="section-subtitle">Key projects and systems I've built</p>
+      </div>
       <div class="projects-grid" id="projects-grid">
         <div class="loading-skeleton">
           <div class="skeleton-card"></div>
@@ -66,10 +76,15 @@
     </div>
   </section>
 
+  <hr class="section-divider">
+
   <section class="section section-alt" id="contact">
     <div class="container">
-      <h2 class="section-title">Get in Touch</h2>
-      <p class="section-subtitle">Have a question or want to work together? Drop me a message.</p>
+      <div class="section-header">
+        <span class="section-label">Connect</span>
+        <h2 class="section-title">Get in Touch</h2>
+        <p class="section-subtitle">Have a question or want to work together? Let's connect.</p>
+      </div>
       <div class="contact-actions" id="contact-actions"></div>
     </div>
   </section>

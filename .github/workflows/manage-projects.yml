@@ -10,11 +10,18 @@ on:
         options:
           - enable
           - disable
-          - add-featured
-          - remove-featured
-          - clear-featured
-      repo_name:
-        description: 'GitHub repo name (for add-featured / remove-featured)'
+          - add
+          - remove
+      title:
+        description: 'Project title (for add / remove)'
+        required: false
+        type: string
+      description:
+        description: 'Project description (for add)'
+        required: false
+        type: string
+      tech:
+        description: 'Comma-separated tech stack (for add), e.g. Java 21, Kafka, Redis'
         required: false
         type: string
 
@@ -30,7 +37,9 @@ jobs:
       - name: Modify data.json
         run: |
           ACTION="${{ inputs.action }}"
-          REPO="${{ inputs.repo_name }}"
+          TITLE="${{ inputs.title }}"
+          DESC="${{ inputs.description }}"
+          TECH="${{ inputs.tech }}"
 
           if [ "$ACTION" = "enable" ]; then
             jq '.projects.enabled = true' data.json > tmp.json
@@ -42,32 +51,28 @@ jobs:
             mv tmp.json data.json
             echo "Projects section disabled"
 
-          elif [ "$ACTION" = "add-featured" ]; then
-            if [ -z "$REPO" ]; then
-              echo "ERROR: repo_name is required for add-featured"
+          elif [ "$ACTION" = "add" ]; then
+            if [ -z "$TITLE" ] || [ -z "$DESC" ]; then
+              echo "ERROR: title and description are required for add"
               exit 1
             fi
-            jq --arg repo "$REPO" \
-              '.projects.featured |= (if index($repo) then . else . + [$repo] end)' \
+            TECH_JSON=$(echo "$TECH" | jq -R 'split(",") | map(gsub("^\\s+|\\s+$"; "")) | map(select(length > 0))')
+            jq --arg title "$TITLE" --arg desc "$DESC" --argjson tech "$TECH_JSON" \
+              '.projects.items += [{"title": $title, "description": $desc, "tech": $tech}]' \
               data.json > tmp.json
             mv tmp.json data.json
-            echo "Added '$REPO' to featured projects"
+            echo "Added project: $TITLE"
 
-          elif [ "$ACTION" = "remove-featured" ]; then
-            if [ -z "$REPO" ]; then
-              echo "ERROR: repo_name is required for remove-featured"
+          elif [ "$ACTION" = "remove" ]; then
+            if [ -z "$TITLE" ]; then
+              echo "ERROR: title is required for remove"
               exit 1
             fi
-            jq --arg repo "$REPO" \
-              '.projects.featured |= map(select(. != $repo))' \
+            jq --arg title "$TITLE" \
+              '.projects.items |= map(select(.title != $title))' \
               data.json > tmp.json
             mv tmp.json data.json
-            echo "Removed '$REPO' from featured projects"
-
-          elif [ "$ACTION" = "clear-featured" ]; then
-            jq '.projects.featured = []' data.json > tmp.json
-            mv tmp.json data.json
-            echo "Cleared featured list (will show top repos by stars)"
+            echo "Removed project: $TITLE"
           fi
 
           echo "Current projects config:"
@@ -79,5 +84,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data.json
           git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "${{ inputs.action }} projects: ${{ inputs.repo_name || 'section toggle' }}"
+          git commit -m "${{ inputs.action }} project: ${{ inputs.title || 'section toggle' }}"
           git push

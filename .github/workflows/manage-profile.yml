@@ -15,6 +15,7 @@ on:
           - github
           - linkedin
           - resume_url
+          - profile_image
           - about
       value:
         description: 'New value (for "about", separate paragraphs with "|||")'
@@ -39,6 +40,11 @@ jobs:
             jq --arg val "$VALUE" '.profile.resumeUrl = $val' data.json > tmp.json
             mv tmp.json data.json
             echo "Updated resume URL"
+
+          elif [ "$FIELD" = "profile_image" ]; then
+            jq --arg val "$VALUE" '.profile.profileImage = $val' data.json > tmp.json
+            mv tmp.json data.json
+            echo "Updated profile image"
 
           elif [ "$FIELD" = "about" ]; then
             # Split on ||| to create array of paragraphs
