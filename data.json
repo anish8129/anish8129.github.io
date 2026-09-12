@@ -6,7 +6,7 @@
     "email": "anish8129@gmail.com",
     "github": "anish8129",
     "linkedin": "anish-prasad",
-    "resumeUrl": "https://docs.google.com/document/d/1af1OIvrwPpC5s2HKcjC5btaBK1oi_sWTP5OLT46dPgY/edit?usp=sharing",
+    "resumeUrl": "https://drive.google.com/file/d/1PupIEBNxT7IQdnajpY-RcJsUKV-oFxLe/view?usp=drive_link",
     "profileImage": "https://github.com/anish8129.png"
   },
   "about": [
@@ -94,12 +94,21 @@
       {
         "title": "Event-Driven Analytics Ingestion Platform",
         "description": "Designed and deployed event-driven systems for handling event ingestion for the Analytics team. Built high-throughput pipelines processing millions of events daily with fault-tolerant architecture and real-time data streaming.",
-        "tech": ["Java 21", "Kafka", "Redis"]
+        "tech": [
+          "Java 21",
+          "Kafka",
+          "Redis"
+        ]
       },
       {
         "title": "Agentic Workflow for ElastiCache to Redis Cloud Migration",
         "description": "Created an agentic workflow automating the migration of ElastiCache clusters to Redis Cloud. Orchestrated multi-step migration processes including data replication, validation, and cutover with zero downtime.",
-        "tech": ["Python", "Redis", "AWS", "Automation"]
+        "tech": [
+          "Python",
+          "Redis",
+          "AWS",
+          "Automation"
+        ]
       }
     ]
   },
